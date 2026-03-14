@@ -172,7 +172,6 @@ export default function MyBookings() {
                     .map(res => {
                     // Find all orders that belong to this reservation
                     const sessionOrders = orders.filter(o => o.reservationId === res._id && !['Ready', 'Delivered', 'Cancelled'].includes(o.status));
-                    const hasPassed = new Date(`${res.date}T${res.time}`) < new Date();
 
                     return (
                       <div key={res._id} className="bg-stone-50 rounded-xl p-6 shadow-md border border-stone-200 fade-in">
@@ -201,7 +200,7 @@ export default function MyBookings() {
                         )}
 
                         {/* Interactive Section for Active Reservations */}
-                        {!hasPassed && res.status === 'Confirmed' && (
+                        {res.status === 'Confirmed' && (
                           <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-stone-200">
                             <button 
                               onClick={() => handleTableOrder(res.tableNumber)}
