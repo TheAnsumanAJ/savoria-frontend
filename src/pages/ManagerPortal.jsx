@@ -198,8 +198,20 @@ export default function ManagerPortal() {
                               </span>
                             )}
                           </td>
-                          <td className="px-6 py-4 max-w-[200px] truncate text-sm" title={order.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}>
-                            {order.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}
+                          <td className="px-6 py-4 text-sm">
+                            <div className="flex flex-col gap-1 max-w-[250px]">
+                              {order.items.map((item, idx) => (
+                                <div key={idx} className="flex items-center justify-between bg-stone-50 px-2 py-1 rounded border border-stone-100">
+                                  <span className="truncate flex-1 font-medium text-stone-700">
+                                    <span className="mr-1">{item.emoji}</span>
+                                    {item.name}
+                                  </span>
+                                  <span className="ml-2 bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                    x{item.quantity}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </td>
                           <td className="px-6 py-4 font-bold text-amber-600">₹{order.total}</td>
                           <td className="px-6 py-4">
