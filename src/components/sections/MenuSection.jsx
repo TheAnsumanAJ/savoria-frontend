@@ -8,6 +8,7 @@ export default function MenuSection({ tableId = null }) {
   const [menuItems, setMenuItems] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [recentlyAddedItem, setRecentlyAddedItem] = useState(null);
   const { addToCart, cart, totalItems, totalPrice } = useCart();
   const navigate = useNavigate();
 
@@ -31,7 +32,7 @@ export default function MenuSection({ tableId = null }) {
 
   const handleAddToCart = (item) => {
     addToCart(item);
-    showToast(`${item.name} added to cart!`);
+    setRecentlyAddedItem(item);
   };
 
   const TabButton = ({ category, label }) => (
@@ -111,32 +112,51 @@ export default function MenuSection({ tableId = null }) {
         )}
       </div>
 
-      {/* Floating Proceed to Order Bridge */}
-      {cart.length > 0 && (
-        <div className="fixed bottom-8 left-4 right-4 z-[90] md:left-auto md:right-8 md:w-96 animate-slide-up">
-          <div className="bg-stone-900 text-white p-6 rounded-3xl shadow-2xl border border-amber-500/30 backdrop-blur-lg bg-opacity-95">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-stone-400 text-xs uppercase tracking-widest font-bold mb-1">Your Order</p>
-                <h4 className="font-display font-bold text-xl">{totalItems} Items Selected</h4>
-              </div>
-              <div className="text-right">
-                <p className="text-stone-400 text-xs uppercase tracking-widest font-bold mb-1">Total</p>
-                <p className="font-display font-bold text-xl text-amber-500">₹{totalPrice}</p>
-              </div>
+      {/* Floating Proceed to Order Bridge (Compact) */}
+      {cart.length > 0 && !recentlyAddedItem && (
+        <div className="fixed bottom-8 left-4 right-4 z-[90] md:left-auto md:right-8 md:w-80 animate-slide-up">
+          <button 
+            onClick={() => navigate(tableId ? `/ordernow/${tableId}` : '/ordernow')}
+            className="w-full bg-stone-900 text-white p-4 rounded-2xl shadow-2xl border border-amber-500/30 flex items-center justify-between group hover:border-amber-500 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <span className="bg-amber-600 text-xs w-6 h-6 flex items-center justify-center rounded-full font-bold">{totalItems}</span>
+              <span className="font-bold">View Order</span>
             </div>
-            
-            <button 
-              onClick={() => navigate(tableId ? `/ordernow/${tableId}` : '/ordernow')}
-              className="w-full py-4 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-amber-600/20 flex items-center justify-center gap-3 group"
-            >
-              Confirm & Place Order
+            <div className="flex items-center gap-2">
+              <span className="text-amber-500 font-bold">₹{totalPrice}</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
-            </button>
-            
-            <p className="text-center text-stone-500 text-[10px] mt-3 uppercase tracking-tighter">
-              {tableId ? `Ordering for Table #${tableId}` : 'Delivery Order'}
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Item Added "Pop Box" Modal */}
+      {recentlyAddedItem && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center animate-pop-in border border-stone-200">
+            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">
+              {recentlyAddedItem.emoji}
+            </div>
+            <h3 className="font-display text-2xl font-bold text-stone-900 mb-2">Added to Cart!</h3>
+            <p className="text-stone-600 mb-6">
+              <strong>{recentlyAddedItem.name}</strong> has been added to your order for <strong>Table #{tableId || 'Delivery'}</strong>.
             </p>
+            
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={() => navigate(tableId ? `/ordernow/${tableId}` : '/ordernow')}
+                className="w-full py-4 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/20 transition-all flex items-center justify-center gap-2"
+              >
+                <span>🛒</span> Proceed to Order (₹{totalPrice})
+              </button>
+              <button 
+                onClick={() => setRecentlyAddedItem(null)}
+                className="w-full py-4 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl transition-all"
+              >
+                + Add More Items
+              </button>
+            </div>
           </div>
         </div>
       )}
