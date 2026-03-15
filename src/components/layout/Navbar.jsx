@@ -27,7 +27,7 @@ export default function Navbar() {
         <Link to="/entertainment" className={`${baseClasses} ${isActive('/entertainment') ? 'text-amber-700 font-bold' : ''}`}>Entertainment</Link>
         
         {user?.role === 'manager' && (
-          <Link to="/manager" className={`${baseClasses} ${isActive('/manager') ? 'text-amber-700 font-bold' : ''}`}>Edit Menu</Link>
+          <Link to="/manager" className={`${baseClasses} ${isActive('/manager') ? 'text-amber-700 font-bold' : ''}`}>Admin Dashboard</Link>
         )}
       </>
     );
