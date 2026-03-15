@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getMenu, getAllOrders, updateMenuItem, updateOrderStatus, addMenuItem, getAllReservations, updateReservationStatus } from '../services/api';
 import { showToast } from '../components/ui/ToastContainer';
+import { QRCodeCanvas } from 'qrcode.react';
 
 export default function ManagerPortal() {
   const { user, loading } = useAuth();
@@ -16,6 +17,7 @@ export default function ManagerPortal() {
   const [newItemData, setNewItemData] = useState({ name: '', category: 'starters', price: '', description: '', emoji: '🍽️', veg: true });
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [qrTableNumber, setQrTableNumber] = useState('1');
 
   const filteredOrders = showCompleted 
     ? orders 
@@ -135,6 +137,12 @@ export default function ManagerPortal() {
               className={`px-6 py-2 rounded-lg font-bold transition-colors ${activeTab === 'reservations' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
             >
               Reservations
+            </button>
+            <button 
+              onClick={() => setActiveTab('qrcodes')}
+              className={`px-6 py-2 rounded-lg font-bold transition-colors ${activeTab === 'qrcodes' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
+            >
+              QR Codes
             </button>
           </div>
         </div>
@@ -369,6 +377,106 @@ export default function ManagerPortal() {
                         )}
                       </tbody>
                     </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* QR Codes Tab */}
+            {activeTab === 'qrcodes' && (
+              <div className="space-y-6 max-w-2xl mx-auto">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-stone-200 text-center">
+                  <h3 className="font-display font-bold text-2xl text-stone-900 mb-6">Table QR Generator</h3>
+                  
+                  <div className="max-w-xs mx-auto mb-8">
+                    <label className="block text-stone-600 font-bold mb-2 text-left">Table Number</label>
+                    <input 
+                      type="number" 
+                      min="1"
+                      value={qrTableNumber} 
+                      onChange={(e) => setQrTableNumber(e.target.value)}
+                      className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:border-amber-500 text-stone-900 text-xl font-bold text-center"
+                      placeholder="Enter Table #"
+                    />
+                  </div>
+
+                  <div className="bg-stone-50 p-10 rounded-3xl border-2 border-dashed border-stone-200 inline-block mb-8 relative group">
+                    <div id="printable-qr" className="bg-white p-4 rounded-xl shadow-md transition-transform group-hover:scale-105 duration-300">
+                      <QRCodeCanvas 
+                        id="qr-canvas"
+                        value={`${window.location.origin}/menu/${qrTableNumber}`}
+                        size={256}
+                        level="H"
+                        includeMargin={true}
+                        imageSettings={{
+                          src: "/favicon.ico",
+                          height: 40,
+                          width: 40,
+                          excavate: true,
+                        }}
+                      />
+                      <div className="mt-4 text-stone-900 font-display font-bold text-xl uppercase tracking-widest">
+                        Table {qrTableNumber}
+                      </div>
+                      <div className="text-stone-400 text-xs font-medium uppercase tracking-tighter mt-1">
+                        Scan to Order • Savoria
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => {
+                        const canvas = document.getElementById('qr-canvas');
+                        const url = canvas.toDataURL('image/png');
+                        const link = document.createElement('a');
+                        link.download = `Savoria-Table-${qrTableNumber}.png`;
+                        link.href = url;
+                        link.click();
+                      }}
+                      className="px-6 py-4 bg-stone-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors shadow-lg"
+                    >
+                      <span>📥</span> Download PNG
+                    </button>
+                    <button 
+                      onClick={() => {
+                        const printWindow = window.open('', '_blank');
+                        const qrContent = document.getElementById('printable-qr').innerHTML;
+                        printWindow.document.write(`
+                          <html>
+                            <head>
+                              <title>Print Table QR - Table ${qrTableNumber}</title>
+                              <style>
+                                body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; text-align: center; }
+                                .qr-container { border: 2px solid #e7e5e4; padding: 40px; border-radius: 40px; }
+                                @media print { .no-print { display: none; } }
+                              </style>
+                            </head>
+                            <body>
+                              <div class="qr-container">${qrContent}</div>
+                              <div class="no-print" style="margin-top: 20px;">
+                                <button onclick="window.print()" style="padding: 10px 20px; background: #d97706; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Print Now</button>
+                              </div>
+                            </body>
+                          </html>
+                        `);
+                        printWindow.document.close();
+                      }}
+                      className="px-6 py-4 bg-amber-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-amber-700 transition-colors shadow-lg"
+                    >
+                      <span>🖨️</span> Print Card
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100 flex gap-4">
+                  <div className="text-3xl">💡</div>
+                  <div>
+                    <h4 className="font-bold text-amber-900">Pro Tip</h4>
+                    <p className="text-amber-800 text-sm">
+                      Place these QR codes in a nice acrylic stand or on a sticker at each table. 
+                      Customers will automatically be set to <strong>Dine-In mode</strong> for <strong>Table #{qrTableNumber}</strong> when they scan.
+                    </p>
                   </div>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getMenu } from '../../services/api';
 import { useCart } from '../../context/CartContext';
 import { showToast } from '../ui/ToastContainer';
@@ -7,7 +8,8 @@ export default function MenuSection({ tableId = null }) {
   const [menuItems, setMenuItems] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
+  const { addToCart, cart, totalItems, totalPrice } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -108,6 +110,36 @@ export default function MenuSection({ tableId = null }) {
           </div>
         )}
       </div>
+
+      {/* Floating Proceed to Order Bridge */}
+      {cart.length > 0 && (
+        <div className="fixed bottom-8 left-4 right-4 z-[90] md:left-auto md:right-8 md:w-96 animate-slide-up">
+          <div className="bg-stone-900 text-white p-6 rounded-3xl shadow-2xl border border-amber-500/30 backdrop-blur-lg bg-opacity-95">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-stone-400 text-xs uppercase tracking-widest font-bold mb-1">Your Order</p>
+                <h4 className="font-display font-bold text-xl">{totalItems} Items Selected</h4>
+              </div>
+              <div className="text-right">
+                <p className="text-stone-400 text-xs uppercase tracking-widest font-bold mb-1">Total</p>
+                <p className="font-display font-bold text-xl text-amber-500">₹{totalPrice}</p>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => navigate(tableId ? `/ordernow/${tableId}` : '/ordernow')}
+              className="w-full py-4 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-amber-600/20 flex items-center justify-center gap-3 group"
+            >
+              Confirm & Place Order
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </button>
+            
+            <p className="text-center text-stone-500 text-[10px] mt-3 uppercase tracking-tighter">
+              {tableId ? `Ordering for Table #${tableId}` : 'Delivery Order'}
+            </p>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
