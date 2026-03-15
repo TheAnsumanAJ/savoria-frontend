@@ -182,7 +182,7 @@ export default function ManagerPortal() {
                     <tbody className="divide-y divide-stone-100 placeholder-stone-400">
                       {filteredOrders.map(order => (
                         <tr key={order._id} className="hover:bg-stone-50 transition-colors">
-                          <td className="px-6 py-4 font-mono text-sm">#{order._id.slice(-6)}</td>
+                          <td className="px-6 py-4 font-mono text-sm text-stone-600 font-bold">#{order._id.slice(-6)}</td>
                           <td className="px-6 py-4">
                             <div className="font-medium text-stone-900">{order.name}</div>
                             <div className="text-xs text-stone-500">{order.userEmail}</div>
