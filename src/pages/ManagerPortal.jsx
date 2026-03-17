@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { getMenu, getAllOrders, updateMenuItem, updateOrderStatus, addMenuItem, getAllReservations, updateReservationStatus } from '../services/api';
 import { showToast } from '../components/ui/ToastContainer';
 import { QRCodeCanvas } from 'qrcode.react';
+import TableStatusGrid from '../components/sections/TableStatusGrid';
 
 export default function ManagerPortal() {
   const { user, loading } = useAuth();
@@ -137,6 +138,12 @@ export default function ManagerPortal() {
               className={`px-6 py-2 rounded-lg font-bold transition-colors ${activeTab === 'reservations' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
             >
               Reservations
+            </button>
+            <button 
+              onClick={() => setActiveTab('tables')}
+              className={`px-6 py-2 rounded-lg font-bold transition-colors ${activeTab === 'tables' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
+            >
+              Table Status
             </button>
             <button 
               onClick={() => setActiveTab('qrcodes')}
@@ -390,6 +397,16 @@ export default function ManagerPortal() {
                       </tbody>
                     </table>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Table Status Tab */}
+            {activeTab === 'tables' && (
+              <div className="fade-in">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+                  <h3 className="font-display font-bold text-xl text-stone-900 mb-6">Live Table Occupancy</h3>
+                  <TableStatusGrid reservations={reservations} />
                 </div>
               </div>
             )}
