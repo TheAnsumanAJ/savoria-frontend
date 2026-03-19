@@ -20,8 +20,27 @@ export const CartProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [orderMode, setOrderMode] = useState('online');
-  const [activeTable, setActiveTable] = useState(null);
+  const [orderMode, setOrderMode] = useState(() => {
+    const saved = localStorage.getItem('savoria_order_mode');
+    return saved || 'online';
+  });
+
+  const [activeTable, setActiveTable] = useState(() => {
+    const saved = localStorage.getItem('savoria_active_table');
+    return saved || null;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('savoria_order_mode', orderMode);
+  }, [orderMode]);
+
+  useEffect(() => {
+    if (activeTable) {
+      localStorage.setItem('savoria_active_table', activeTable);
+    } else {
+      localStorage.removeItem('savoria_active_table');
+    }
+  }, [activeTable]);
 
   useEffect(() => {
     localStorage.setItem('savoria_online_cart', JSON.stringify(onlineCart));

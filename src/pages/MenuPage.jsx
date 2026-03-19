@@ -12,8 +12,18 @@ export default function MenuPage() {
       setOrderMode('dine-in');
       setActiveTable(tableId);
     } else {
-      setOrderMode('online');
-      setActiveTable(null);
+      // If we are already in dine-in mode (from a previous QR scan), keep it
+      // Don't reset to online unless there's no active session
+      const savedMode = localStorage.getItem('savoria_order_mode');
+      const savedTable = localStorage.getItem('savoria_active_table');
+      
+      if (savedMode === 'dine-in' && savedTable) {
+        setOrderMode('dine-in');
+        setActiveTable(savedTable);
+      } else {
+        setOrderMode('online');
+        setActiveTable(null);
+      }
     }
   }, [tableId, setOrderMode, setActiveTable]);
 

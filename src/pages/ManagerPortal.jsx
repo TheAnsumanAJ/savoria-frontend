@@ -115,39 +115,39 @@ export default function ManagerPortal() {
   return (
     <div className="min-h-[calc(100vh-80px)] bg-stone-100 py-10 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8 bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 bg-white p-6 rounded-2xl shadow-sm border border-stone-200 gap-6">
           <div>
             <h1 className="font-display text-3xl font-bold text-stone-900">Manager Dashboard</h1>
             <p className="text-stone-500">Welcome back, {user.name}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 lg:justify-end">
             <button 
               onClick={() => setActiveTab('orders')}
-              className={`px-6 py-2 rounded-lg font-bold transition-colors ${activeTab === 'orders' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
+              className={`flex-1 min-w-[140px] lg:flex-none px-4 py-2 rounded-lg font-bold text-sm transition-colors ${activeTab === 'orders' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
             >
-              Order Management
+              Orders
             </button>
             <button 
               onClick={() => setActiveTab('menu')}
-              className={`px-6 py-2 rounded-lg font-bold transition-colors ${activeTab === 'menu' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
+              className={`flex-1 min-w-[140px] lg:flex-none px-4 py-2 rounded-lg font-bold text-sm transition-colors ${activeTab === 'menu' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
             >
-              Menu Pricing
+              Menu
             </button>
             <button 
               onClick={() => setActiveTab('reservations')}
-              className={`px-6 py-2 rounded-lg font-bold transition-colors ${activeTab === 'reservations' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
+              className={`flex-1 min-w-[140px] lg:flex-none px-4 py-2 rounded-lg font-bold text-sm transition-colors ${activeTab === 'reservations' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
             >
-              Reservations
+              Bookings
             </button>
             <button 
               onClick={() => setActiveTab('tables')}
-              className={`px-6 py-2 rounded-lg font-bold transition-colors ${activeTab === 'tables' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
+              className={`flex-1 min-w-[140px] lg:flex-none px-4 py-2 rounded-lg font-bold text-sm transition-colors ${activeTab === 'tables' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
             >
-              Table Status
+              Tables
             </button>
             <button 
               onClick={() => setActiveTab('qrcodes')}
-              className={`px-6 py-2 rounded-lg font-bold transition-colors ${activeTab === 'qrcodes' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
+              className={`flex-1 min-w-[140px] lg:flex-none px-4 py-2 rounded-lg font-bold text-sm transition-colors ${activeTab === 'qrcodes' ? 'bg-amber-600 text-white' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'}`}
             >
               QR Codes
             </button>
@@ -177,24 +177,24 @@ export default function ManagerPortal() {
                     <table className="w-full text-left">
                     <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 text-sm uppercase">
                       <tr>
-                        <th className="px-6 py-4 font-bold">Order ID</th>
-                        <th className="px-6 py-4 font-bold">Customer</th>
-                        <th className="px-6 py-4 font-bold">Type</th>
-                        <th className="px-6 py-4 font-bold">Items</th>
-                        <th className="px-6 py-4 font-bold">Total</th>
-                        <th className="px-6 py-4 font-bold">Status</th>
-                        <th className="px-6 py-4 font-bold text-right">Action</th>
+                        <th className="px-3 sm:px-6 py-4 font-bold">Order ID</th>
+                        <th className="px-3 sm:px-6 py-4 font-bold">Customer</th>
+                        <th className="px-3 sm:px-6 py-4 font-bold">Type</th>
+                        <th className="px-3 sm:px-6 py-4 font-bold">Items</th>
+                        <th className="px-3 sm:px-6 py-4 font-bold">Total</th>
+                        <th className="px-3 sm:px-6 py-4 font-bold">Status</th>
+                        <th className="px-3 sm:px-6 py-4 font-bold text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-stone-100 placeholder-stone-400">
                       {filteredOrders.map(order => (
                         <tr key={order._id} className="hover:bg-stone-50 transition-colors">
-                          <td className="px-6 py-4 font-mono text-sm text-stone-600 font-bold">#{order._id.slice(-6)}</td>
-                          <td className="px-6 py-4">
+                          <td className="px-3 sm:px-6 py-4 font-mono text-sm text-stone-600 font-bold">#{order._id.slice(-6)}</td>
+                          <td className="px-3 sm:px-6 py-4">
                             <div className="font-medium text-stone-900">{order.name}</div>
-                            <div className="text-xs text-stone-500">{order.userEmail}</div>
+                            <div className="text-xs text-stone-500 truncate max-w-[100px]">{order.userEmail}</div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-3 sm:px-6 py-4">
                             {order.type === 'delivery' ? (
                               <span className="inline-flex items-center gap-1 text-blue-700 bg-blue-100 px-2 py-1 rounded text-xs font-bold">
                                 🛵 Delivery
@@ -205,11 +205,11 @@ export default function ManagerPortal() {
                               </span>
                             )}
                           </td>
-                          <td className="px-6 py-4 text-sm">
-                            <div className="flex flex-col gap-1 max-w-[250px]">
-                              {order.items.map((item, idx) => (
+                          <td className="px-3 sm:px-6 py-4 text-sm">
+                            <div className="flex flex-col gap-1 max-w-[150px] sm:max-w-[250px]">
+                              {order.items.slice(0, 2).map((item, idx) => (
                                 <div key={idx} className="flex items-center justify-between bg-stone-50 px-2 py-1 rounded border border-stone-100">
-                                  <span className="truncate flex-1 font-medium text-stone-700">
+                                  <span className="truncate flex-1 font-medium text-stone-700 text-xs">
                                     <span className="mr-1">{item.emoji}</span>
                                     {item.name}
                                   </span>
@@ -218,11 +218,12 @@ export default function ManagerPortal() {
                                   </span>
                                 </div>
                               ))}
+                              {order.items.length > 2 && <div className="text-[10px] text-stone-400 font-bold ml-1">+{order.items.length - 2} more...</div>}
                             </div>
                           </td>
-                          <td className="px-6 py-4 font-bold text-amber-600">₹{order.total}</td>
-                          <td className="px-6 py-4">
-                            <span className={`px-2 py-1 rounded text-xs font-bold ${
+                          <td className="px-3 sm:px-6 py-4 font-bold text-amber-600">₹{order.total}</td>
+                          <td className="px-3 sm:px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-[10px] sm:text-xs font-bold ${
                               order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
                               order.status === 'Delivered' || order.status === 'Ready' ? 'bg-green-100 text-green-700' :
                               'bg-yellow-100 text-yellow-800'
@@ -230,7 +231,7 @@ export default function ManagerPortal() {
                               {order.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="px-3 sm:px-6 py-4 text-right">
                             <select 
                               value={order.status}
                               onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
@@ -337,33 +338,33 @@ export default function ManagerPortal() {
                     <table className="w-full text-left">
                       <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 text-sm uppercase">
                         <tr>
-                          <th className="px-6 py-4 font-bold">Table</th>
-                          <th className="px-6 py-4 font-bold">Customer</th>
-                          <th className="px-6 py-4 font-bold">Time Slot</th>
-                          <th className="px-6 py-4 font-bold">Guests</th>
-                          <th className="px-6 py-4 font-bold">Status</th>
-                          <th className="px-6 py-4 font-bold text-right">Actions</th>
+                          <th className="px-3 sm:px-6 py-4 font-bold">Table</th>
+                          <th className="px-3 sm:px-6 py-4 font-bold">Customer</th>
+                          <th className="px-3 sm:px-6 py-4 font-bold">Time Slot</th>
+                          <th className="px-3 sm:px-6 py-4 font-bold">Guests</th>
+                          <th className="px-3 sm:px-6 py-4 font-bold">Status</th>
+                          <th className="px-3 sm:px-6 py-4 font-bold text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-stone-100">
                         {reservations.map(res => (
                           <tr key={res._id} className="hover:bg-stone-50 transition-colors">
-                            <td className="px-6 py-4">
+                            <td className="px-3 sm:px-6 py-4">
                               <span className="font-bold text-lg text-amber-600">#{res.tableNumber}</span>
                             </td>
-                            <td className="px-6 py-4">
-                              <div className="font-medium text-stone-900">{res.name}</div>
-                              <div className="text-xs text-stone-500">{res.phone}</div>
+                            <td className="px-3 sm:px-6 py-4">
+                              <div className="font-medium text-stone-900 text-sm">{res.name}</div>
+                              <div className="text-[10px] text-stone-500">{res.phone}</div>
                             </td>
-                            <td className="px-6 py-4 text-sm text-stone-600">
+                            <td className="px-3 sm:px-6 py-4 text-[10px] sm:text-sm text-stone-600">
                               <div>{new Date(res.date).toLocaleDateString()}</div>
                               <div className="font-bold">{res.time}</div>
                             </td>
-                            <td className="px-6 py-4 text-stone-700 font-medium">
-                              {res.guests} Guests
+                            <td className="px-3 sm:px-6 py-4 text-stone-700 font-medium text-xs sm:text-base">
+                              {res.guests} <span className="hidden sm:inline">Guests</span>
                             </td>
-                            <td className="px-6 py-4">
-                              <span className={`px-2 py-1 rounded text-xs font-bold ${
+                            <td className="px-3 sm:px-6 py-4">
+                              <span className={`px-2 py-1 rounded text-[10px] sm:text-xs font-bold ${
                                 res.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
                                 res.status === 'Completed' ? 'bg-blue-100 text-blue-700' :
                                 'bg-green-100 text-green-700'
@@ -371,7 +372,7 @@ export default function ManagerPortal() {
                                 {res.status}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-right">
+                            <td className="px-3 sm:px-6 py-4 text-right">
                               {res.status === 'Confirmed' && (
                                 <div className="flex justify-end gap-2">
                                   <button 

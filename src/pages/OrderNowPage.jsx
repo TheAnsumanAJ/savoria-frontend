@@ -12,8 +12,15 @@ export default function OrderNowPage() {
       setOrderMode('dine-in');
       setActiveTable(tableId);
     } else {
-      setOrderMode('online');
-      setActiveTable(null);
+      const savedMode = localStorage.getItem('savoria_order_mode');
+      const savedTable = localStorage.getItem('savoria_active_table');
+      if (savedMode === 'dine-in' && savedTable) {
+        setOrderMode('dine-in');
+        setActiveTable(savedTable);
+      } else {
+        setOrderMode('online');
+        setActiveTable(null);
+      }
     }
   }, [tableId, setOrderMode, setActiveTable]);
 
