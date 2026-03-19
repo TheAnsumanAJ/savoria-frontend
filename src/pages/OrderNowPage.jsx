@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 
 export default function OrderNowPage() {
   const { tableId } = useParams();
-  const { setOrderMode, setActiveTable } = useCart();
+  const { setOrderMode, setActiveTable, activeTable } = useCart();
 
   useEffect(() => {
     if (tableId) {
@@ -26,7 +26,7 @@ export default function OrderNowPage() {
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-80px)]">
-      <OrderOnline tableId={tableId} />
+      <OrderOnline tableId={tableId || activeTable} />
     </div>
   );
 }

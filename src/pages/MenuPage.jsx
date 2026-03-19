@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 
 export default function MenuPage() {
   const { tableId } = useParams();
-  const { setOrderMode, setActiveTable } = useCart();
+  const { setOrderMode, setActiveTable, activeTable } = useCart();
 
   useEffect(() => {
     if (tableId) {
@@ -29,7 +29,7 @@ export default function MenuPage() {
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-80px)]">
-      <MenuSection tableId={tableId} />
+      <MenuSection tableId={tableId || activeTable} />
     </div>
   );
 }
