@@ -7,6 +7,7 @@ import { showToast } from '../ui/ToastContainer';
 export default function MenuSection({ tableId = null }) {
   const [menuItems, setMenuItems] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [vegFilter, setVegFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [recentlyAddedItem, setRecentlyAddedItem] = useState(null);
   const { addToCart, cart, totalItems, totalPrice } = useCart();
@@ -26,9 +27,13 @@ export default function MenuSection({ tableId = null }) {
     fetchMenu();
   }, []);
 
-  const filteredMenu = filter === 'all' 
-    ? menuItems 
-    : menuItems.filter(item => item.category === filter);
+  const filteredMenu = menuItems.filter(item => {
+    const matchesCategory = filter === 'all' || item.category === filter;
+    const matchesVeg = vegFilter === 'all' || 
+                      (vegFilter === 'veg' && item.veg === true) || 
+                      (vegFilter === 'non-veg' && item.veg === false);
+    return matchesCategory && matchesVeg;
+  });
 
   const handleAddToCart = (item) => {
     addToCart(item);
@@ -61,12 +66,48 @@ export default function MenuSection({ tableId = null }) {
           <h2 className="font-display text-4xl md:text-5xl font-bold text-stone-900">Explore Our Menu</h2>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4 mb-12 fade-in">
+        <div className="flex flex-wrap justify-center gap-4 mb-4 fade-in">
           <TabButton category="all" label="All" />
           <TabButton category="starters" label="Starters" />
           <TabButton category="mains" label="Main Course" />
           <TabButton category="desserts" label="Desserts" />
           <TabButton category="drinks" label="Drinks" />
+        </div>
+
+        {/* Veg/Non-Veg Filter */}
+        <div className="flex justify-center gap-3 mb-12 fade-in">
+          <button 
+            onClick={() => setVegFilter('all')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${
+              vegFilter === 'all' 
+                ? 'bg-stone-800 text-white border-stone-800 shadow-md' 
+                : 'bg-white text-stone-500 border-stone-200 hover:border-stone-400'
+            }`}
+          >
+            All Items
+          </button>
+          <button 
+            onClick={() => setVegFilter('veg')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-1.5 ${
+              vegFilter === 'veg' 
+                ? 'bg-green-600 text-white border-green-600 shadow-md' 
+                : 'bg-white text-green-600 border-green-200 hover:border-green-400'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-current"></span>
+            Veg Only
+          </button>
+          <button 
+            onClick={() => setVegFilter('non-veg')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-1.5 ${
+              vegFilter === 'non-veg' 
+                ? 'bg-red-600 text-white border-red-600 shadow-md' 
+                : 'bg-white text-red-600 border-red-200 hover:border-red-400'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-current"></span>
+            Non-Veg
+          </button>
         </div>
 
         {loading ? (
