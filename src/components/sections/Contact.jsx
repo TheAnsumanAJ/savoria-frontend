@@ -12,7 +12,7 @@ export default function Contact() {
           <div className="text-center p-8 bg-stone-800 rounded-2xl fade-in" style={{ animationDelay: '0.1s' }}>
             <span className="text-4xl mb-4 block">📍</span>
             <h3 className="font-display text-xl font-bold mb-2">Location</h3>
-            <p className="text-stone-400">Foodie Zone<br />Foodie District, FL 12345</p>
+            <p className="text-stone-400">Foodie Zone<br />Foodie Galaxy, Rourkela</p>
           </div>
           <div className="text-center p-8 bg-stone-800 rounded-2xl fade-in" style={{ animationDelay: '0.2s' }}>
             <span className="text-4xl mb-4 block">📞</span>

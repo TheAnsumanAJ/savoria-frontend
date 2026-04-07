@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getUserReservations, getUserOrders } from '../services/api';
 import { useAuth } from './AuthContext';
+import { useSocket } from './SocketContext';
 
 const BookingContext = createContext();
 
@@ -8,6 +9,7 @@ export const useBooking = () => useContext(BookingContext);
 
 export const BookingProvider = ({ children }) => {
   const { user } = useAuth();
+  const socket = useSocket();
   const [reservations, setReservations] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -38,6 +40,17 @@ export const BookingProvider = ({ children }) => {
   useEffect(() => {
     fetchUserData();
   }, [user]);
+
+  // Real-time refresh when socket event received
+  useEffect(() => {
+    if (socket) {
+      socket.on('order-status-update', () => {
+        fetchUserData(); // Refresh data on status change
+      });
+
+      return () => socket.off('order-status-update');
+    }
+  }, [socket]);
 
   return (
     <BookingContext.Provider value={{ reservations, orders, loading, refreshData: fetchUserData }}>

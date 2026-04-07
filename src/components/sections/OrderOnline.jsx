@@ -7,7 +7,7 @@ import { createOrder } from '../../services/api';
 import { showToast } from '../ui/ToastContainer';
 
 export default function OrderOnline({ tableId = null }) {
-  const { cart, updateQuantity, removeFromCart, totalItems, totalPrice, clearCart } = useCart();
+  const { cart, updateQuantity, removeFromCart, totalItems, totalPrice, clearCart, activeReservationId } = useCart();
   const { user } = useAuth();
   const { refreshData, reservations } = useBooking();
   const navigate = useNavigate();
@@ -36,9 +36,9 @@ export default function OrderOnline({ tableId = null }) {
 
     setLoading(true);
 
-    let reservationId = null;
-    if (tableId) {
-      // Find the active reservation for this table
+    let reservationId = activeReservationId;
+    if (!reservationId && tableId) {
+      // Fallback search for active reservation for this table
       const activeRes = reservations.find(r => r.tableNumber === parseInt(tableId) && r.status === 'Confirmed');
       if (activeRes) {
         reservationId = activeRes._id;

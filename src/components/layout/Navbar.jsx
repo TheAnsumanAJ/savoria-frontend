@@ -22,7 +22,16 @@ export default function Navbar() {
       <>
         <Link to="/" className={`${baseClasses} ${isActive('/') ? 'text-amber-700 font-bold' : ''}`}>Home</Link>
         <Link to="/menu" className={`${baseClasses} ${isActive('/menu') ? 'text-amber-700 font-bold' : ''}`}>Menu</Link>
-        <Link to="/ordernow" className={`${baseClasses} ${isActive('/ordernow') ? 'text-amber-700 font-bold' : ''}`}>Order Online</Link>
+        <Link 
+          to="/ordernow" 
+          onClick={() => {
+            localStorage.setItem('savoria_order_mode', 'online');
+            localStorage.removeItem('savoria_active_table');
+          }}
+          className={`${baseClasses} ${isActive('/ordernow') ? 'text-amber-700 font-bold' : ''}`}
+        >
+          Order Online
+        </Link>
         <Link to="/reservations" className={`${baseClasses} ${isActive('/reservations') ? 'text-amber-700 font-bold' : ''}`}>Book & Dine</Link>
         <Link to="/entertainment" className={`${baseClasses} ${isActive('/entertainment') ? 'text-amber-700 font-bold' : ''}`}>Entertainment</Link>
         

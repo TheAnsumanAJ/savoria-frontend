@@ -30,6 +30,11 @@ export const CartProvider = ({ children }) => {
     return saved || null;
   });
 
+  const [activeReservationId, setActiveReservationId] = useState(() => {
+    const saved = localStorage.getItem('savoria_active_res_id');
+    return saved || null;
+  });
+
   useEffect(() => {
     localStorage.setItem('savoria_order_mode', orderMode);
   }, [orderMode]);
@@ -41,6 +46,14 @@ export const CartProvider = ({ children }) => {
       localStorage.removeItem('savoria_active_table');
     }
   }, [activeTable]);
+
+  useEffect(() => {
+    if (activeReservationId) {
+      localStorage.setItem('savoria_active_res_id', activeReservationId);
+    } else {
+      localStorage.removeItem('savoria_active_res_id');
+    }
+  }, [activeReservationId]);
 
   useEffect(() => {
     localStorage.setItem('savoria_online_cart', JSON.stringify(onlineCart));
@@ -93,7 +106,7 @@ export const CartProvider = ({ children }) => {
   const totalPrice = activeCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
-    <CartContext.Provider value={{ cart: activeCart, orderMode, setOrderMode, activeTable, setActiveTable, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice }}>
+    <CartContext.Provider value={{ cart: activeCart, orderMode, setOrderMode, activeTable, setActiveTable, activeReservationId, setActiveReservationId, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice }}>
       {children}
     </CartContext.Provider>
   );

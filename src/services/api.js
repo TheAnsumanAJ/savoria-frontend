@@ -41,6 +41,19 @@ export const getUserOrders = (email) => api.get(`/orders/user/${email}`);
 export const getReservationOrders = (reservationId) => api.get(`/orders/reservation/${reservationId}`);
 export const getAllOrders = () => api.get('/orders');
 export const updateOrderStatus = (id, status) => api.patch(`/orders/${id}/status`, { status });
+export const getOrderById = (id) => api.get(`/orders/${id}`);
 export const cancelOrder = (id) => api.delete(`/orders/${id}`);
+
+// Payment Service
+export const createRazorpayOrder = (data) => api.post('/payment/razorpay/order', data);
+export const verifyPayment = (data) => api.post('/payment/razorpay/verify', data);
+export const markAsCashPaid = (data) => api.post('/payment/cash/paid', data);
+export const confirmCashPayment = (data) => api.post('/payment/cash/confirm', data);
+
+// Reservation Level Payment
+export const createRazorpayReservationOrder = (data) => api.post('/payment/razorpay/reservation/order', data);
+export const verifyReservationPayment = (data) => api.post('/payment/razorpay/reservation/verify', data);
+export const markReservationAsCashPaid = (data) => api.post('/payment/cash/reservation/paid', data);
+export const confirmReservationCashPayment = (data) => api.post('/payment/cash/reservation/confirm', data);
 
 export default api;

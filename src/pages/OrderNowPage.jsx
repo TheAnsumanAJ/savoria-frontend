@@ -4,13 +4,18 @@ import OrderOnline from '../components/sections/OrderOnline';
 import { useCart } from '../context/CartContext';
 
 export default function OrderNowPage() {
-  const { tableId } = useParams();
-  const { setOrderMode, setActiveTable, activeTable } = useCart();
+  const { tableId, resId } = useParams();
+  const { setOrderMode, setActiveTable, activeTable, setActiveReservationId } = useCart();
 
   useEffect(() => {
     if (tableId) {
       setOrderMode('dine-in');
       setActiveTable(tableId);
+      if (resId) {
+        setActiveReservationId(resId);
+      }
+      localStorage.setItem('savoria_order_mode', 'dine-in');
+      localStorage.setItem('savoria_active_table', tableId);
     } else {
       const savedMode = localStorage.getItem('savoria_order_mode');
       const savedTable = localStorage.getItem('savoria_active_table');
@@ -20,6 +25,8 @@ export default function OrderNowPage() {
       } else {
         setOrderMode('online');
         setActiveTable(null);
+        localStorage.setItem('savoria_order_mode', 'online');
+        localStorage.removeItem('savoria_active_table');
       }
     }
   }, [tableId, setOrderMode, setActiveTable]);

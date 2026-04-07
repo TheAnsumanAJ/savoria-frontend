@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getMenu, getAllOrders, updateMenuItem, updateOrderStatus, addMenuItem, getAllReservations, updateReservationStatus } from '../services/api';
+import { 
+  getMenu, getAllOrders, updateMenuItem, updateOrderStatus, addMenuItem, 
+  getAllReservations, updateReservationStatus, confirmCashPayment, confirmReservationCashPayment 
+} from '../services/api';
 import { showToast } from '../components/ui/ToastContainer';
 import { QRCodeCanvas } from 'qrcode.react';
 import TableStatusGrid from '../components/sections/TableStatusGrid';
+import { useSocket } from '../context/SocketContext';
 
 export default function ManagerPortal() {
   const { user, loading } = useAuth();
+  const socket = useSocket();
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('orders');
@@ -15,6 +20,24 @@ export default function ManagerPortal() {
   const [reservations, setReservations] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
+
+  // Real-time refresh when socket event received
+  useEffect(() => {
+    if (socket && user?.role === 'manager') {
+      socket.on('new-order-alert', (data) => {
+        fetchData(); // Refresh all data when new order arrives
+      });
+
+      socket.on('order-status-update', () => {
+        fetchData(); // Also refresh on status updates
+      });
+
+      return () => {
+        socket.off('new-order-alert');
+        socket.off('order-status-update');
+      };
+    }
+  }, [socket, user]);
   const [newItemData, setNewItemData] = useState({ name: '', category: 'starters', price: '', description: '', emoji: '🍽️', veg: true });
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -110,6 +133,26 @@ export default function ManagerPortal() {
     }
   };
 
+  const handleConfirmCash = async (orderId) => {
+    try {
+      await confirmCashPayment({ orderId });
+      showToast('Cash payment confirmed');
+      fetchData();
+    } catch (err) {
+      showToast('Failed to confirm cash payment', 'error');
+    }
+  };
+
+  const handleConfirmReservationCash = async (reservationId) => {
+    try {
+      await confirmReservationCashPayment({ reservationId });
+      showToast('Reservation cash payment confirmed');
+      fetchData();
+    } catch (err) {
+      showToast('Failed to confirm reservation payment', 'error');
+    }
+  };
+
   if (!user || user.role !== 'manager') return null;
 
   return (
@@ -182,6 +225,7 @@ export default function ManagerPortal() {
                         <th className="px-3 sm:px-6 py-4 font-bold">Type</th>
                         <th className="px-3 sm:px-6 py-4 font-bold">Items</th>
                         <th className="px-3 sm:px-6 py-4 font-bold">Total</th>
+                        <th className="px-3 sm:px-6 py-4 font-bold">Payment</th>
                         <th className="px-3 sm:px-6 py-4 font-bold">Status</th>
                         <th className="px-3 sm:px-6 py-4 font-bold text-right">Action</th>
                       </tr>
@@ -223,6 +267,14 @@ export default function ManagerPortal() {
                           </td>
                           <td className="px-3 sm:px-6 py-4 font-bold text-amber-600">₹{order.total}</td>
                           <td className="px-3 sm:px-6 py-4">
+                            <div className="flex flex-col gap-1">
+                              <span className={`text-[10px] font-bold uppercase tracking-wider ${order.paymentStatus === 'Paid' ? 'text-green-600' : 'text-amber-500'}`}>
+                                {order.paymentStatus === 'Paid' ? '✅ Paid' : '⏳ Pending'}
+                              </span>
+                              <span className="text-[9px] text-stone-400 font-medium">via {order.paymentMethod || 'Cash'}</span>
+                            </div>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4">
                             <span className={`px-2 py-1 rounded text-[10px] sm:text-xs font-bold ${
                               order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
                               order.status === 'Delivered' || order.status === 'Ready' ? 'bg-green-100 text-green-700' :
@@ -232,28 +284,38 @@ export default function ManagerPortal() {
                             </span>
                           </td>
                           <td className="px-3 sm:px-6 py-4 text-right">
-                            <select 
-                              value={order.status}
-                              onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                              className="px-3 py-1 bg-white border border-stone-300 rounded shadow-sm text-sm focus:outline-none focus:border-amber-500 text-stone-900"
-                            >
-                              <option value="Pending">Pending</option>
-                              <option value="Preparing">Preparing</option>
-                              {order.type === 'delivery' ? (
-                                <>
-                                  <option value="Out for Delivery">Out for Delivery</option>
-                                  <option value="Delivered">Delivered</option>
-                                </>
-                              ) : (
-                                <option value="Ready">Ready</option>
+                            <div className="flex flex-col items-end gap-2">
+                              <select 
+                                value={order.status}
+                                onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                                className="px-3 py-1 bg-white border border-stone-300 rounded shadow-sm text-sm focus:outline-none focus:border-amber-500 text-stone-900"
+                              >
+                                <option value="Pending">Pending</option>
+                                <option value="Preparing">Preparing</option>
+                                {order.type === 'delivery' ? (
+                                  <>
+                                    <option value="Out for Delivery">Out for Delivery</option>
+                                    <option value="Delivered">Delivered</option>
+                                  </>
+                                ) : (
+                                  <option value="Ready">Ready</option>
+                                )}
+                                <option value="Cancelled">Cancelled</option>
+                              </select>
+                              {order.paymentMethod === 'Cash' && order.paymentStatus === 'Pending' && order.status !== 'Cancelled' && (
+                                <button 
+                                  onClick={() => handleConfirmCash(order._id)}
+                                  className="px-3 py-1 bg-green-600 text-white rounded text-[10px] font-bold hover:bg-green-700 transition-colors shadow-sm"
+                                >
+                                  Confirm Cash
+                                </button>
                               )}
-                              <option value="Cancelled">Cancelled</option>
-                            </select>
+                            </div>
                           </td>
                         </tr>
                       ))}
                       {filteredOrders.length === 0 && (
-                        <tr><td colSpan="7" className="px-6 py-8 text-center text-stone-500">No active orders found.</td></tr>
+                        <tr><td colSpan="8" className="px-6 py-8 text-center text-stone-500">No active orders found.</td></tr>
                       )}
                     </tbody>
                   </table>
@@ -373,22 +435,32 @@ export default function ManagerPortal() {
                               </span>
                             </td>
                             <td className="px-3 sm:px-6 py-4 text-right">
-                              {res.status === 'Confirmed' && (
-                                <div className="flex justify-end gap-2">
+                              <div className="flex flex-col items-end gap-2">
+                                {res.status === 'Confirmed' && (
+                                  <div className="flex justify-end gap-2">
+                                    <button 
+                                      onClick={() => handleReservationStatus(res._id, 'Completed')}
+                                      className="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-xs font-bold transition-all"
+                                    >
+                                      Mark Complete
+                                    </button>
+                                    <button 
+                                      onClick={() => handleReservationStatus(res._id, 'Cancelled')}
+                                      className="px-3 py-1 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 rounded text-xs font-bold transition-all"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                )}
+                                {res.status === 'Confirmed' && orders.some(o => o.reservationId === res._id && o.paymentMethod === 'Cash' && o.paymentStatus === 'Pending' && o.status !== 'Cancelled') && (
                                   <button 
-                                    onClick={() => handleReservationStatus(res._id, 'Completed')}
-                                    className="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-xs font-bold transition-all"
+                                    onClick={() => handleConfirmReservationCash(res._id)}
+                                    className="px-3 py-1 bg-amber-600 text-white hover:bg-amber-700 rounded text-xs font-bold transition-colors shadow-sm"
                                   >
-                                    Mark Complete
+                                    Confirm Cash Payment
                                   </button>
-                                  <button 
-                                    onClick={() => handleReservationStatus(res._id, 'Cancelled')}
-                                    className="px-3 py-1 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 rounded text-xs font-bold transition-all"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
